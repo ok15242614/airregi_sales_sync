@@ -125,14 +125,26 @@ function main() {
   Logger.log('取得したcompany_id: ' + companyId);
 
   // まず部門一覧を取得してログ出力
-  fetchDepartments(token, companyId);
+  const sections = fetchDepartments(token, companyId);
 
-  // ↓部門IDが分かったら、departmentIdにセットして再実行
-  // const departmentId = ここに部門IDを入力;
-  // const deals = fetchDeals(token, companyId, departmentId);
-  // const cashSales = filterCashSales(deals);
-  // const formattedData = formatCashSalesData(cashSales);
-  // writeToSpreadsheet(formattedData);
+  // ここで対象の部門IDを指定してください（例: 123456）
+  // 例: 最初の部門IDを自動で使う場合
+  if (sections.length === 0) {
+    Logger.log('部門が存在しないため処理を終了します');
+    return;
+  }
+  const departmentId = sections[0].id; // 必要に応じて手動でIDを指定してもOK
+  Logger.log('現金売上抽出対象の部門ID: ' + departmentId);
+
+  // 売上取得
+  const deals = fetchDeals(token, companyId, departmentId);
+
+  // 現金売上のみ抽出
+  const cashSales = filterCashSales(deals);
+
+  // 整形してスプレッドシート出力
+  const formattedData = formatCashSalesData(cashSales);
+  writeToSpreadsheet(formattedData);
 
   Logger.log('main処理が完了しました');
 }
