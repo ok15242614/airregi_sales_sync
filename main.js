@@ -168,7 +168,7 @@ function main() {
   // 部門一覧を取得してログ出力
   const sections = fetchDepartments(token, companyId);
   // ここで特定の部門名を指定してください（例: '店舗A'）
-  const targetSectionName = 'ここに部門名を入力';
+  const targetSectionName = 'すなば文衛門';
   const targetSection = sections.find(sec => sec.name === targetSectionName);
   if (!targetSection) {
     Logger.log('指定した部門名が見つかりません: ' + targetSectionName);
