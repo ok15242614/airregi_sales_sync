@@ -116,6 +116,7 @@ function main() {
   Logger.log('main処理を開始します');
   const token = getAccessTokenOrAuthorize();
   const companyId = getCompanyId(token);
+  Logger.log('取得したcompany_id: ' + companyId);
 
   // まず部門一覧を取得してログ出力
   fetchDepartments(token, companyId);
