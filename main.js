@@ -1,5 +1,5 @@
 // =============================
-// freee API × GAS 特定部門の現金売上一覧取得スクリプト
+// freee API × GAS 特定部門の売上一覧取得スクリプト
 // =============================
 
 // --- 勘定科目一覧取得 ---
@@ -69,11 +69,10 @@ function fetchDepartments(token, companyId) {
   return json.sections;
 }
 
-// --- 特定部門の売上（現金）取得 ---
-function fetchDeals(token, companyId, departmentId, offset = 0, limit = 50) {
-  Logger.log('取引一覧を取得します（company_id=' + companyId + ', department_id=' + departmentId + '）');
-  // department_idでAPI側で絞り込む
-  const url = `https://api.freee.co.jp/api/1/deals?company_id=${companyId}&department_id=${departmentId}&type=income&limit=${limit}&offset=${offset}`;
+// --- 取引一覧取得（日付範囲・type=incomeで絞り込み） ---
+function fetchDeals(token, companyId, startDate, endDate, offset = 0, limit = 50) {
+  Logger.log('取引一覧を取得します（company_id=' + companyId + ', 日付範囲=' + startDate + '～' + endDate + '）');
+  const url = `https://api.freee.co.jp/api/1/deals?company_id=${companyId}&type=income&start_issue_date=${startDate}&end_issue_date=${endDate}&limit=${limit}&offset=${offset}`;
   const options = {
     method: 'get',
     headers: {
@@ -91,50 +90,47 @@ function fetchDeals(token, companyId, departmentId, offset = 0, limit = 50) {
   return json.deals || [];
 }
 
-// --- 現金売上のみ抽出（売上高debit＋現金credit） ---
-function filterCashSales(deals, salesAccountItemId) {
-  const cashSales = [];
+// --- 特定部門の売上のみ抽出 ---
+function filterSalesBySection(deals, salesAccountItemId, departmentId) {
+  const sales = [];
   deals.forEach(deal => {
-    // 売上高（debit, account_item_id一致）明細を抽出
+    // 指定部門IDの売上高（debit, account_item_id一致, section_id一致）明細を抽出
     const salesDetails = deal.details.filter(
-      detail => detail.account_item_id === salesAccountItemId && detail.entry_side === 'debit'
+      detail =>
+        detail.account_item_id === salesAccountItemId &&
+        detail.entry_side === 'debit' &&
+        detail.section_id === departmentId
     );
-    // 現金（credit）明細があるか（account_item_name: '現金' で判定）
-    const hasCashCredit = deal.details.some(
-      detail => detail.account_item_name === '現金' && detail.entry_side === 'credit'
-    );
-    if (salesDetails.length > 0 && hasCashCredit) {
-      salesDetails.forEach(sale => {
-        cashSales.push({
-          deal_id: deal.id,
-          date: deal.issue_date,
-          amount: sale.amount,
-          partner_name: deal.partner_name || '',
-          description: deal.description || ''
-        });
+    salesDetails.forEach(sale => {
+      sales.push({
+        deal_id: deal.id,
+        date: deal.issue_date,
+        amount: sale.amount,
+        partner_name: deal.partner_name || '',
+        description: deal.description || ''
       });
-    }
+    });
   });
-  Logger.log('現金売上件数: ' + cashSales.length);
-  return cashSales;
+  Logger.log('売上件数: ' + sales.length);
+  return sales;
 }
 
 // --- データ整形 ---
-function formatCashSalesData(cashSales) {
-  Logger.log('現金売上データ整形処理を開始します');
-  if (!cashSales || cashSales.length === 0) {
-    Logger.log('現金売上データが空です');
+function formatSalesData(sales) {
+  Logger.log('売上データ整形処理を開始します');
+  if (!sales || sales.length === 0) {
+    Logger.log('売上データが空です');
     return [];
   }
   const headers = ['取引ID', '日付', '金額', '取引先名', 'メモ'];
-  const rows = cashSales.map(sale => [
+  const rows = sales.map(sale => [
     sale.deal_id,
     sale.date,
     sale.amount,
     sale.partner_name,
     sale.description
   ]);
-  Logger.log('現金売上データ整形完了。行数: ' + rows.length);
+  Logger.log('売上データ整形完了。行数: ' + rows.length);
   return [headers, ...rows];
 }
 
@@ -158,6 +154,11 @@ function main() {
   const companyId = getCompanyId(token);
   Logger.log('取得したcompany_id: ' + companyId);
 
+  // 日付範囲を指定（例：今日のみ）
+  const today = Utilities.formatDate(new Date(), Session.getScriptTimeZone(), 'yyyy-MM-dd');
+  const startDate = today;
+  const endDate = today;
+
   // 勘定科目一覧を取得し、売上高IDを特定
   const accountItems = fetchAccountItems(token, companyId);
   const salesAccountItemId = getSalesAccountItemId(accountItems);
@@ -168,24 +169,23 @@ function main() {
 
   // 部門一覧を取得してログ出力
   const sections = fetchDepartments(token, companyId);
-  // ここで特定の部門名を指定してください（例: '店舗A'）
-  const targetSectionName = 'すなば文衛門';
+  const targetSectionName = 'すなば文衛門'; // ここに部門名を入力
   const targetSection = sections.find(sec => sec.name && sec.name.trim().includes(targetSectionName.trim()));
   if (!targetSection) {
     Logger.log('指定した部門名が見つかりません: ' + targetSectionName);
     return;
   }
   const departmentId = targetSection.id;
-  Logger.log('現金売上抽出対象の部門ID: ' + departmentId + ' / 部門名: ' + targetSection.name);
+  Logger.log('売上抽出対象の部門ID: ' + departmentId + ' / 部門名: ' + targetSection.name);
 
-  // 売上取得（APIで部門IDで絞り込み）
-  const deals = fetchDeals(token, companyId, departmentId);
+  // 売上取得（APIでtype=income, 日付範囲で絞り込み）
+  const deals = fetchDeals(token, companyId, startDate, endDate);
 
-  // 現金売上のみ抽出（売上高IDで判定）
-  const cashSales = filterCashSales(deals, salesAccountItemId);
+  // 特定部門の売上のみ抽出（売上高ID・部門IDで判定）
+  const sales = filterSalesBySection(deals, salesAccountItemId, departmentId);
 
   // 整形してスプレッドシート出力
-  const formattedData = formatCashSalesData(cashSales);
+  const formattedData = formatSalesData(sales);
   writeToSpreadsheet(formattedData);
 
   Logger.log('main処理が完了しました');
