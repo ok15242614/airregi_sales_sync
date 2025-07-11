@@ -28,4 +28,4 @@ jobs:
           CLASPRC_JSON: ${{ secrets.CLASPRC_JSON }}
 
       - name: Push to Google Apps Script
-        run: clasp push
+        run: clasp push -f
