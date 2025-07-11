@@ -6,6 +6,7 @@
 const TARGET_SECTION_NAME = 'すなば文衛門'; // 対象部門名
 const DATE_FORMAT = 'yyyy-MM-dd'; // 日付フォーマット
 const DAYS_AGO = 0; // 0:今日, 1:昨日, ...
+const SALES_ACCOUNT_ITEM_ID = 499030063; // 売上高のaccount_item_idを直接指定
 
 // --- 日付取得ユーティリティ ---
 function getTargetDate(daysAgo = 0) {
@@ -154,23 +155,16 @@ function main() {
     const endDate = getTargetDate(0);
     Logger.log(`【日付範囲】${startDate} ～ ${endDate}`);
     // マスタ取得
-    const accountItems = fetchAccountItems(token, companyId);
-    // const salesAccountItemId = getSalesAccountItemId(accountItems); // 一旦使わない
+    // const accountItems = fetchAccountItems(token, companyId); // 使わない
     const sections = fetchSections(token, companyId);
     const sectionId = getSectionIdByName(sections, TARGET_SECTION_NAME);
     // 取引取得
     const deals = fetchIncomeDeals(token, companyId, startDate, endDate);
-    // --- ここで全明細のaccount_item_idを出力 ---
-    deals.forEach(deal => {
-      deal.details.forEach(detail => {
-        Logger.log(`【明細ID】deal_id=${deal.id} account_item_id=${detail.account_item_id} entry_side=${detail.entry_side} section_id=${detail.section_id} description=${detail.description}`);
-      });
-    });
-    // データ抽出・整形・出力（従来通り）
-    // const sales = extractSalesBySection(deals, salesAccountItemId, sectionId);
-    // const formatted = formatSalesData(sales);
-    // writeToSpreadsheet(formatted);
-    Logger.log('main処理が完了しました（account_item_id出力デバッグ版）');
+    // データ抽出・整形・出力
+    const sales = extractSalesBySection(deals, SALES_ACCOUNT_ITEM_ID, sectionId);
+    const formatted = formatSalesData(sales);
+    writeToSpreadsheet(formatted);
+    Logger.log('main処理が完了しました');
   } catch (e) {
     Logger.log('エラー: ' + e.message);
     throw e;
