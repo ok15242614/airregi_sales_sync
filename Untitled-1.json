@@ -1,0 +1,537 @@
+{
+    "deals": [
+        {
+            "id": 2876057611,
+            "company_id": 3126749,
+            "issue_date": "2025-07-10",
+            "due_date": null,
+            "amount": 16450,
+            "due_amount": 0,
+            "type": "income",
+            "partner_id": null,
+            "partner_code": null,
+            "ref_number": "",
+            "status": "settled",
+            "deal_origin_name": "手動",
+            "details": [
+                {
+                    "id": 7815005092,
+                    "account_item_id": 499030063,
+                    "tax_code": 129,
+                    "item_id": 186886779,
+                    "section_id": 2497256,
+                    "tag_ids": [],
+                    "amount": 1600,
+                    "vat": 145,
+                    "description": "【Airレジ】売上高 現金",
+                    "entry_side": "credit"
+                },
+                {
+                    "id": 7815005095,
+                    "account_item_id": 499030063,
+                    "tax_code": 156,
+                    "item_id": 186886779,
+                    "section_id": 2497256,
+                    "tag_ids": [],
+                    "amount": 14850,
+                    "vat": 1100,
+                    "description": "【Airレジ】売上高 現金",
+                    "entry_side": "credit"
+                }
+            ],
+            "payments": [
+                {
+                    "id": 7815005096,
+                    "date": "2025-07-10",
+                    "from_walletable_type": "wallet",
+                    "from_walletable_id": 3520659,
+                    "amount": 16450
+                }
+            ],
+            "receipts": []
+        },
+        {
+            "id": 2875740851,
+            "company_id": 3126749,
+            "issue_date": "2025-07-09",
+            "due_date": null,
+            "amount": 114110,
+            "due_amount": 54990,
+            "type": "income",
+            "partner_id": null,
+            "partner_code": null,
+            "ref_number": null,
+            "status": "unsettled",
+            "deal_origin_name": "スマレジ",
+            "details": [
+                {
+                    "id": 7814216379,
+                    "account_item_id": 499030063,
+                    "tax_code": 129,
+                    "item_id": null,
+                    "section_id": 1381960,
+                    "tag_ids": [],
+                    "amount": 114110,
+                    "vat": 10374,
+                    "description": "課税売上分",
+                    "entry_side": "credit"
+                }
+            ],
+            "payments": [
+                {
+                    "id": 7814216381,
+                    "date": "2025-07-09",
+                    "from_walletable_type": "wallet",
+                    "from_walletable_id": 3523131,
+                    "amount": 59120
+                }
+            ],
+            "receipts": []
+        },
+        {
+            "id": 2875737469,
+            "company_id": 3126749,
+            "issue_date": "2025-07-09",
+            "due_date": null,
+            "amount": 159900,
+            "due_amount": 0,
+            "type": "income",
+            "partner_id": null,
+            "partner_code": null,
+            "ref_number": null,
+            "status": "settled",
+            "deal_origin_name": "スマレジ",
+            "details": [
+                {
+                    "id": 7814206377,
+                    "account_item_id": 499030063,
+                    "tax_code": 129,
+                    "item_id": null,
+                    "section_id": 2522917,
+                    "tag_ids": [],
+                    "amount": 159900,
+                    "vat": 14536,
+                    "description": "課税売上分",
+                    "entry_side": "credit"
+                }
+            ],
+            "payments": [
+                {
+                    "id": 7814206378,
+                    "date": "2025-07-09",
+                    "from_walletable_type": "wallet",
+                    "from_walletable_id": 5434165,
+                    "amount": 48690
+                },
+                {
+                    "id": 7814206379,
+                    "date": "2025-07-09",
+                    "from_walletable_type": "wallet",
+                    "from_walletable_id": 5434166,
+                    "amount": 60750
+                },
+                {
+                    "id": 7814206380,
+                    "date": "2025-07-09",
+                    "from_walletable_type": "wallet",
+                    "from_walletable_id": 5434168,
+                    "amount": 50460
+                }
+            ],
+            "receipts": []
+        },
+        {
+            "id": 2875743390,
+            "company_id": 3126749,
+            "issue_date": "2025-07-08",
+            "due_date": null,
+            "amount": 419646,
+            "due_amount": 0,
+            "type": "income",
+            "partner_id": null,
+            "partner_code": null,
+            "ref_number": null,
+            "status": "settled",
+            "deal_origin_name": "スマレジ",
+            "details": [
+                {
+                    "id": 7814222454,
+                    "account_item_id": 499030063,
+                    "tax_code": 129,
+                    "item_id": null,
+                    "section_id": 1380607,
+                    "tag_ids": [],
+                    "amount": 419646,
+                    "vat": 38150,
+                    "description": "課税売上分",
+                    "entry_side": "credit"
+                }
+            ],
+            "payments": [
+                {
+                    "id": 7814222455,
+                    "date": "2025-07-08",
+                    "from_walletable_type": "wallet",
+                    "from_walletable_id": 3520763,
+                    "amount": 211211
+                },
+                {
+                    "id": 7814222457,
+                    "date": "2025-07-08",
+                    "from_walletable_type": "wallet",
+                    "from_walletable_id": 3520764,
+                    "amount": 151305
+                },
+                {
+                    "id": 7814222458,
+                    "date": "2025-07-08",
+                    "from_walletable_type": "wallet",
+                    "from_walletable_id": 5755936,
+                    "amount": 16770
+                },
+                {
+                    "id": 7814222459,
+                    "date": "2025-07-08",
+                    "from_walletable_type": "wallet",
+                    "from_walletable_id": 3520767,
+                    "amount": 40360
+                }
+            ],
+            "receipts": []
+        },
+        {
+            "id": 2875737468,
+            "company_id": 3126749,
+            "issue_date": "2025-07-08",
+            "due_date": null,
+            "amount": 52570,
+            "due_amount": 0,
+            "type": "income",
+            "partner_id": null,
+            "partner_code": null,
+            "ref_number": null,
+            "status": "settled",
+            "deal_origin_name": "スマレジ",
+            "details": [
+                {
+                    "id": 7814206371,
+                    "account_item_id": 499030063,
+                    "tax_code": 129,
+                    "item_id": null,
+                    "section_id": 2522917,
+                    "tag_ids": [],
+                    "amount": 52570,
+                    "vat": 4779,
+                    "description": "課税売上分",
+                    "entry_side": "credit"
+                }
+            ],
+            "payments": [
+                {
+                    "id": 7814206372,
+                    "date": "2025-07-08",
+                    "from_walletable_type": "wallet",
+                    "from_walletable_id": 5434165,
+                    "amount": 17030
+                },
+                {
+                    "id": 7814206373,
+                    "date": "2025-07-08",
+                    "from_walletable_type": "wallet",
+                    "from_walletable_id": 5434166,
+                    "amount": 22160
+                },
+                {
+                    "id": 7814206374,
+                    "date": "2025-07-08",
+                    "from_walletable_type": "wallet",
+                    "from_walletable_id": 5434168,
+                    "amount": 13380
+                }
+            ],
+            "receipts": []
+        },
+        {
+            "id": 2872091413,
+            "company_id": 3126749,
+            "issue_date": "2025-07-08",
+            "due_date": null,
+            "amount": 11810,
+            "due_amount": 0,
+            "type": "income",
+            "partner_id": null,
+            "partner_code": null,
+            "ref_number": "",
+            "status": "settled",
+            "deal_origin_name": "手動",
+            "details": [
+                {
+                    "id": 7803942011,
+                    "account_item_id": 499030063,
+                    "tax_code": 156,
+                    "item_id": 186886779,
+                    "section_id": 2497256,
+                    "tag_ids": [],
+                    "amount": 11430,
+                    "vat": 847,
+                    "description": "【Airレジ】売上高 現金",
+                    "entry_side": "credit"
+                },
+                {
+                    "id": 7803942013,
+                    "account_item_id": 499030063,
+                    "tax_code": 156,
+                    "item_id": 229048285,
+                    "section_id": 2497256,
+                    "tag_ids": [],
+                    "amount": 380,
+                    "vat": 28,
+                    "description": "【Airレジ】売上高 PayPay",
+                    "entry_side": "credit"
+                }
+            ],
+            "payments": [
+                {
+                    "id": 7803942015,
+                    "date": "2025-07-08",
+                    "from_walletable_type": "wallet",
+                    "from_walletable_id": 3520659,
+                    "amount": 11430
+                },
+                {
+                    "id": 7803942017,
+                    "date": "2025-07-08",
+                    "from_walletable_type": "wallet",
+                    "from_walletable_id": 6334435,
+                    "amount": 380
+                }
+            ],
+            "receipts": []
+        },
+        {
+            "id": 2875743386,
+            "company_id": 3126749,
+            "issue_date": "2025-07-07",
+            "due_date": null,
+            "amount": 320743,
+            "due_amount": 0,
+            "type": "income",
+            "partner_id": null,
+            "partner_code": null,
+            "ref_number": null,
+            "status": "settled",
+            "deal_origin_name": "スマレジ",
+            "details": [
+                {
+                    "id": 7814222440,
+                    "account_item_id": 499030063,
+                    "tax_code": 156,
+                    "item_id": null,
+                    "section_id": 1380607,
+                    "tag_ids": [],
+                    "amount": 28080,
+                    "vat": 2080,
+                    "description": "課税売上分",
+                    "entry_side": "credit"
+                },
+                {
+                    "id": 7814222441,
+                    "account_item_id": 499030063,
+                    "tax_code": 129,
+                    "item_id": null,
+                    "section_id": 1380607,
+                    "tag_ids": [],
+                    "amount": 292828,
+                    "vat": 26621,
+                    "description": "課税売上分",
+                    "entry_side": "credit"
+                },
+                {
+                    "id": 7814222442,
+                    "account_item_id": 499030064,
+                    "tax_code": 129,
+                    "item_id": null,
+                    "section_id": 1380607,
+                    "tag_ids": [],
+                    "amount": 165,
+                    "vat": 15,
+                    "description": "値引き",
+                    "entry_side": "debit"
+                }
+            ],
+            "payments": [
+                {
+                    "id": 7814222443,
+                    "date": "2025-07-07",
+                    "from_walletable_type": "wallet",
+                    "from_walletable_id": 3520763,
+                    "amount": 127228
+                },
+                {
+                    "id": 7814222444,
+                    "date": "2025-07-07",
+                    "from_walletable_type": "wallet",
+                    "from_walletable_id": 3520764,
+                    "amount": 97940
+                },
+                {
+                    "id": 7814222446,
+                    "date": "2025-07-07",
+                    "from_walletable_type": "wallet",
+                    "from_walletable_id": 5755936,
+                    "amount": 87495
+                },
+                {
+                    "id": 7814222449,
+                    "date": "2025-07-07",
+                    "from_walletable_type": "wallet",
+                    "from_walletable_id": 3520767,
+                    "amount": 8080
+                }
+            ],
+            "receipts": []
+        },
+        {
+            "id": 2875740847,
+            "company_id": 3126749,
+            "issue_date": "2025-07-07",
+            "due_date": null,
+            "amount": 131280,
+            "due_amount": 77880,
+            "type": "income",
+            "partner_id": null,
+            "partner_code": null,
+            "ref_number": null,
+            "status": "unsettled",
+            "deal_origin_name": "スマレジ",
+            "details": [
+                {
+                    "id": 7814216365,
+                    "account_item_id": 499030063,
+                    "tax_code": 129,
+                    "item_id": null,
+                    "section_id": 1381960,
+                    "tag_ids": [],
+                    "amount": 131280,
+                    "vat": 11935,
+                    "description": "課税売上分",
+                    "entry_side": "credit"
+                }
+            ],
+            "payments": [
+                {
+                    "id": 7814216368,
+                    "date": "2025-07-07",
+                    "from_walletable_type": "wallet",
+                    "from_walletable_id": 3523131,
+                    "amount": 53400
+                }
+            ],
+            "receipts": []
+        },
+        {
+            "id": 2875737464,
+            "company_id": 3126749,
+            "issue_date": "2025-07-07",
+            "due_date": null,
+            "amount": 145080,
+            "due_amount": 0,
+            "type": "income",
+            "partner_id": null,
+            "partner_code": null,
+            "ref_number": null,
+            "status": "settled",
+            "deal_origin_name": "スマレジ",
+            "details": [
+                {
+                    "id": 7814206357,
+                    "account_item_id": 499030063,
+                    "tax_code": 129,
+                    "item_id": null,
+                    "section_id": 2522917,
+                    "tag_ids": [],
+                    "amount": 145080,
+                    "vat": 13189,
+                    "description": "課税売上分",
+                    "entry_side": "credit"
+                }
+            ],
+            "payments": [
+                {
+                    "id": 7814206359,
+                    "date": "2025-07-07",
+                    "from_walletable_type": "wallet",
+                    "from_walletable_id": 5434165,
+                    "amount": 55630
+                },
+                {
+                    "id": 7814206361,
+                    "date": "2025-07-07",
+                    "from_walletable_type": "wallet",
+                    "from_walletable_id": 5434166,
+                    "amount": 42850
+                },
+                {
+                    "id": 7814206362,
+                    "date": "2025-07-07",
+                    "from_walletable_type": "wallet",
+                    "from_walletable_id": 5434168,
+                    "amount": 46600
+                }
+            ],
+            "receipts": []
+        },
+        {
+            "id": 2870014099,
+            "company_id": 3126749,
+            "issue_date": "2025-07-07",
+            "due_date": null,
+            "amount": 12560,
+            "due_amount": 0,
+            "type": "income",
+            "partner_id": null,
+            "partner_code": null,
+            "ref_number": "",
+            "status": "settled",
+            "deal_origin_name": "手動",
+            "details": [
+                {
+                    "id": 7797864658,
+                    "account_item_id": 499030063,
+                    "tax_code": 129,
+                    "item_id": 186886779,
+                    "section_id": 2497256,
+                    "tag_ids": [],
+                    "amount": 800,
+                    "vat": 73,
+                    "description": "【Airレジ】売上高 現金",
+                    "entry_side": "credit"
+                },
+                {
+                    "id": 7797864659,
+                    "account_item_id": 499030063,
+                    "tax_code": 156,
+                    "item_id": 186886779,
+                    "section_id": 2497256,
+                    "tag_ids": [],
+                    "amount": 9360,
+                    "vat": 693,
+                    "description": "【Airレジ】売上高 現金",
+                    "entry_side": "credit"
+                },
+                {
+                    "id": 7797864660,
+                    "account_item_id": 499030063,
+                    "tax_code": 156,
+                    "item_id": 229048285,
+                    "section_id": 2497256,
+                    "tag_ids": [],
+                    "amount": 2400,
+                    "vat": 178,
+                    "description": "【Airレジ】売上高 PayPay",
+                    "entry_side": "credit"
+                }
+            ]
+        }
+    ]
+}

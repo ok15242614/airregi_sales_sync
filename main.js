@@ -155,16 +155,22 @@ function main() {
     Logger.log(`【日付範囲】${startDate} ～ ${endDate}`);
     // マスタ取得
     const accountItems = fetchAccountItems(token, companyId);
-    const salesAccountItemId = getSalesAccountItemId(accountItems);
+    // const salesAccountItemId = getSalesAccountItemId(accountItems); // 一旦使わない
     const sections = fetchSections(token, companyId);
     const sectionId = getSectionIdByName(sections, TARGET_SECTION_NAME);
     // 取引取得
     const deals = fetchIncomeDeals(token, companyId, startDate, endDate);
-    // データ抽出・整形・出力
-    const sales = extractSalesBySection(deals, salesAccountItemId, sectionId);
-    const formatted = formatSalesData(sales);
-    writeToSpreadsheet(formatted);
-    Logger.log('main処理が完了しました');
+    // --- ここで全明細のaccount_item_idを出力 ---
+    deals.forEach(deal => {
+      deal.details.forEach(detail => {
+        Logger.log(`【明細ID】deal_id=${deal.id} account_item_id=${detail.account_item_id} entry_side=${detail.entry_side} section_id=${detail.section_id} description=${detail.description}`);
+      });
+    });
+    // データ抽出・整形・出力（従来通り）
+    // const sales = extractSalesBySection(deals, salesAccountItemId, sectionId);
+    // const formatted = formatSalesData(sales);
+    // writeToSpreadsheet(formatted);
+    Logger.log('main処理が完了しました（account_item_id出力デバッグ版）');
   } catch (e) {
     Logger.log('エラー: ' + e.message);
     throw e;
