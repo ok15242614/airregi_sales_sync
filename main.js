@@ -6,7 +6,6 @@
 const CLIENT_ID = '615194859329540'; // freeeアプリのクライアントID
 const CLIENT_SECRET = 'Av6z0oGCBVkKPn33Eco7mkr400E4WlEX25o2JDt9vxIpCYe1fszn_tBXrhPDympOBSs6NS_MmxZUPgWyXWwmwA'; // freeeアプリのクライアントシークレット
 const REDIRECT_URI = 'https://script.google.com/macros/d/1ogJV1edpGEJ0qeGrJFsLAjU0FJ6F2jA989tsRZHMZ3KSzmjGd0lO7Nyw/usercallback'; // リダイレクトURI
-const COMPANY_ID = 'YOUR_COMPANY_ID'; // freee会計の会社ID
 
 // OAuth2ライブラリのライブラリID: 1B7Jc7wG2QbFJi7dUo6g9gK2kT9gkQ4v1b1Jg1j1Jg1Jg1Jg1Jg1Jg1Jg1
 
@@ -41,9 +40,30 @@ function authCallback(request) {
   }
 }
 
+// --- 会社ID取得 ---
+function fetchCompanyId(token) {
+  const url = 'https://api.freee.co.jp/api/1/companies';
+  const options = {
+    method: 'get',
+    headers: {
+      Authorization: 'Bearer ' + token
+    },
+    muteHttpExceptions: true
+  };
+  const response = UrlFetchApp.fetch(url, options);
+  if (response.getResponseCode() !== 200) {
+    throw new Error('会社ID取得失敗: ' + response.getContentText());
+  }
+  const json = JSON.parse(response.getContentText());
+  if (!json.companies || json.companies.length === 0) {
+    throw new Error('会社情報が取得できませんでした');
+  }
+  return json.companies[0].id; // 複数ある場合は最初の会社IDを返す
+}
+
 // --- 2. freee APIリクエスト（取引一覧） ---
-function fetchFreeeData(token) {
-  const url = `https://api.freee.co.jp/api/1/deals?company_id=${COMPANY_ID}&limit=50`;
+function fetchFreeeData(token, companyId) {
+  const url = `https://api.freee.co.jp/api/1/deals?company_id=${companyId}&limit=50`;
   const options = {
     method: 'get',
     headers: {
@@ -91,7 +111,8 @@ function main() {
     return;
   }
   const token = service.getAccessToken();
-  const rawData = fetchFreeeData(token);
+  const companyId = fetchCompanyId(token);
+  const rawData = fetchFreeeData(token, companyId);
   const formattedData = formatData(rawData);
   writeToSpreadsheet(formattedData);
 }
