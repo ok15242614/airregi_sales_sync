@@ -3,9 +3,9 @@
 // =============================
 
 // --- 設定値 ---
-const CLIENT_ID = 'YOUR_CLIENT_ID'; // freeeアプリのクライアントID
-const CLIENT_SECRET = 'YOUR_CLIENT_SECRET'; // freeeアプリのクライアントシークレット
-const REDIRECT_URI = 'YOUR_REDIRECT_URI'; // リダイレクトURI
+const CLIENT_ID = '615194859329540'; // freeeアプリのクライアントID
+const CLIENT_SECRET = 'Av6z0oGCBVkKPn33Eco7mkr400E4WlEX25o2JDt9vxIpCYe1fszn_tBXrhPDympOBSs6NS_MmxZUPgWyXWwmwA'; // freeeアプリのクライアントシークレット
+const REDIRECT_URI = 'https://script.google.com/macros/d/1ogJV1edpGEJ0qeGrJFsLAjU0FJ6F2jA989tsRZHMZ3KSzmjGd0lO7Nyw/usercallback'; // リダイレクトURI
 const COMPANY_ID = 'YOUR_COMPANY_ID'; // freee会計の会社ID
 
 // OAuth2ライブラリのライブラリID: 1B7Jc7wG2QbFJi7dUo6g9gK2kT9gkQ4v1b1Jg1j1Jg1Jg1Jg1Jg1Jg1Jg1
