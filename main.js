@@ -5,7 +5,6 @@
 // --- 部門一覧取得 ---
 function fetchDepartments(token, companyId) {
   Logger.log('部門一覧を取得します（company_id=' + companyId + '）');
-  // 正式なエンドポイントに修正
   const url = `https://api.freee.co.jp/api/1/companies/${companyId}/sections`;
   const options = {
     method: 'get',
@@ -16,12 +15,17 @@ function fetchDepartments(token, companyId) {
   };
   const response = UrlFetchApp.fetch(url, options);
   Logger.log('部門一覧APIレスポンス: ' + response.getContentText());
+  Logger.log('部門一覧APIステータス: ' + response.getResponseCode());
   if (response.getResponseCode() !== 200) {
     throw new Error('部門一覧取得失敗: ' + response.getContentText());
   }
   const json = JSON.parse(response.getContentText());
-  if (!json.sections || json.sections.length === 0) {
-    Logger.log('部門データがありません');
+  if (!json.sections) {
+    Logger.log('APIレスポンスにsectionsキーがありません。レスポンス内容: ' + response.getContentText());
+    return [];
+  }
+  if (json.sections.length === 0) {
+    Logger.log('部門データがありません（sectionsは空配列）');
     return [];
   }
   json.sections.forEach(sec => {
