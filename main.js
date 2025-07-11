@@ -70,9 +70,10 @@ function fetchDepartments(token, companyId) {
 }
 
 // --- 特定部門の売上（現金）取得 ---
-function fetchDeals(token, companyId, departmentId) {
+function fetchDeals(token, companyId, departmentId, offset = 0, limit = 50) {
   Logger.log('取引一覧を取得します（company_id=' + companyId + ', department_id=' + departmentId + '）');
-  const url = `https://api.freee.co.jp/api/1/deals?company_id=${companyId}&department_id=${departmentId}&type=income&limit=50`;
+  // department_idでAPI側で絞り込む
+  const url = `https://api.freee.co.jp/api/1/deals?company_id=${companyId}&department_id=${departmentId}&type=income&limit=${limit}&offset=${offset}`;
   const options = {
     method: 'get',
     headers: {
@@ -169,15 +170,15 @@ function main() {
   const sections = fetchDepartments(token, companyId);
   // ここで特定の部門名を指定してください（例: '店舗A'）
   const targetSectionName = 'すなば文衛門';
-  const targetSection = sections.find(sec => sec.name === targetSectionName);
+  const targetSection = sections.find(sec => sec.name && sec.name.trim().includes(targetSectionName.trim()));
   if (!targetSection) {
     Logger.log('指定した部門名が見つかりません: ' + targetSectionName);
     return;
   }
   const departmentId = targetSection.id;
-  Logger.log('現金売上抽出対象の部門ID: ' + departmentId + ' / 部門名: ' + targetSectionName);
+  Logger.log('現金売上抽出対象の部門ID: ' + departmentId + ' / 部門名: ' + targetSection.name);
 
-  // 売上取得
+  // 売上取得（APIで部門IDで絞り込み）
   const deals = fetchDeals(token, companyId, departmentId);
 
   // 現金売上のみ抽出（売上高IDで判定）
