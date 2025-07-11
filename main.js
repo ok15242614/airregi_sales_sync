@@ -5,7 +5,8 @@
 // --- 部門一覧取得 ---
 function fetchDepartments(token, companyId) {
   Logger.log('部門一覧を取得します（company_id=' + companyId + '）');
-  const url = `https://api.freee.co.jp/api/1/departments?company_id=${companyId}`;
+  // エンドポイントを新形式に修正
+  const url = `https://api.freee.co.jp/api/1/companies/${companyId}/departments`;
   const options = {
     method: 'get',
     headers: {
