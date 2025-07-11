@@ -7,7 +7,7 @@ const CLIENT_ID = '615194859329540'; // freeeアプリのクライアントID
 const CLIENT_SECRET = 'Av6z0oGCBVkKPn33Eco7mkr400E4WlEX25o2JDt9vxIpCYe1fszn_tBXrhPDympOBSs6NS_MmxZUPgWyXWwmwA'; // freeeアプリのクライアントシークレット
 const REDIRECT_URI = 'https://script.google.com/macros/d/1ogJV1edpGEJ0qeGrJFsLAjU0FJ6F2jA989tsRZHMZ3KSzmjGd0lO7Nyw/usercallback'; // リダイレクトURI
 
-// OAuth2ライブラリのライブラリID: 1B7Jc7wG2QbFJi7dUo6g9gK2kT9gkQ4v1b1Jg1j1Jg1Jg1Jg1Jg1Jg1Jg1
+// OAuth2ライブラリのライブラリID: 1ogJV1edpGEJ0qeGrJFsLAjU0FJ6F2jA989tsRZHMZ3KSzmjGd0lO7Nyw
 
 // --- 1. OAuth2認証 ---
 function getOAuthService() {
