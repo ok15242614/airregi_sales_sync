@@ -149,15 +149,17 @@ function main() {
     Logger.log(`【認証】アクセストークン取得: ${token ? 'OK' : 'NG'}`);
     const companyId = getCompanyId(token);
     Logger.log(`【会社ID】company_id=${companyId}`);
-    // 日付範囲（例：今日のみ）
-    const date = getTargetDate(DAYS_AGO);
+    // 日付範囲（過去1カ月分）
+    const startDate = getTargetDate(30);
+    const endDate = getTargetDate(0);
+    Logger.log(`【日付範囲】${startDate} ～ ${endDate}`);
     // マスタ取得
     const accountItems = fetchAccountItems(token, companyId);
     const salesAccountItemId = getSalesAccountItemId(accountItems);
     const sections = fetchSections(token, companyId);
     const sectionId = getSectionIdByName(sections, TARGET_SECTION_NAME);
     // 取引取得
-    const deals = fetchIncomeDeals(token, companyId, date, date);
+    const deals = fetchIncomeDeals(token, companyId, startDate, endDate);
     // データ抽出・整形・出力
     const sales = extractSalesBySection(deals, salesAccountItemId, sectionId);
     const formatted = formatSalesData(sales);
