@@ -2,6 +2,33 @@
 // freee API × GAS 特定部門の現金売上一覧取得スクリプト
 // =============================
 
+// --- 部門一覧取得 ---
+function fetchDepartments(token, companyId) {
+  Logger.log('部門一覧を取得します（company_id=' + companyId + '）');
+  const url = `https://api.freee.co.jp/api/1/departments?company_id=${companyId}`;
+  const options = {
+    method: 'get',
+    headers: {
+      Authorization: 'Bearer ' + token
+    },
+    muteHttpExceptions: true
+  };
+  const response = UrlFetchApp.fetch(url, options);
+  Logger.log('部門一覧APIレスポンス: ' + response.getContentText());
+  if (response.getResponseCode() !== 200) {
+    throw new Error('部門一覧取得失敗: ' + response.getContentText());
+  }
+  const json = JSON.parse(response.getContentText());
+  if (!json.departments || json.departments.length === 0) {
+    Logger.log('部門データがありません');
+    return [];
+  }
+  json.departments.forEach(dep => {
+    Logger.log('部門ID: ' + dep.id + ' / 部門名: ' + dep.name);
+  });
+  return json.departments;
+}
+
 // --- 特定部門の売上（現金）取得 ---
 function fetchDeals(token, companyId, departmentId) {
   Logger.log('取引一覧を取得します（company_id=' + companyId + ', department_id=' + departmentId + '）');
@@ -90,18 +117,15 @@ function main() {
   const token = getAccessTokenOrAuthorize();
   const companyId = getCompanyId(token);
 
-  // ここで対象の部門IDを指定してください（例: 123456）
-  const departmentId = ここに部門IDを入力;
+  // まず部門一覧を取得してログ出力
+  fetchDepartments(token, companyId);
 
-  // 売上取得
-  const deals = fetchDeals(token, companyId, departmentId);
-
-  // 現金売上のみ抽出
-  const cashSales = filterCashSales(deals);
-
-  // 整形してスプレッドシート出力
-  const formattedData = formatCashSalesData(cashSales);
-  writeToSpreadsheet(formattedData);
+  // ↓部門IDが分かったら、departmentIdにセットして再実行
+  // const departmentId = ここに部門IDを入力;
+  // const deals = fetchDeals(token, companyId, departmentId);
+  // const cashSales = filterCashSales(deals);
+  // const formattedData = formatCashSalesData(cashSales);
+  // writeToSpreadsheet(formattedData);
 
   Logger.log('main処理が完了しました');
 }
