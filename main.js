@@ -5,8 +5,8 @@
 // --- 部門一覧取得 ---
 function fetchDepartments(token, companyId) {
   Logger.log('部門一覧を取得します（company_id=' + companyId + '）');
-  // エンドポイントを新形式に修正
-  const url = `https://api.freee.co.jp/api/1/companies/${companyId}/departments`;
+  // 正式なエンドポイントに修正
+  const url = `https://api.freee.co.jp/api/1/companies/${companyId}/sections`;
   const options = {
     method: 'get',
     headers: {
@@ -20,14 +20,14 @@ function fetchDepartments(token, companyId) {
     throw new Error('部門一覧取得失敗: ' + response.getContentText());
   }
   const json = JSON.parse(response.getContentText());
-  if (!json.departments || json.departments.length === 0) {
+  if (!json.sections || json.sections.length === 0) {
     Logger.log('部門データがありません');
     return [];
   }
-  json.departments.forEach(dep => {
-    Logger.log('部門ID: ' + dep.id + ' / 部門名: ' + dep.name);
+  json.sections.forEach(sec => {
+    Logger.log('部門ID: ' + sec.id + ' / 部門名: ' + sec.name);
   });
-  return json.departments;
+  return json.sections;
 }
 
 // --- 特定部門の売上（現金）取得 ---
