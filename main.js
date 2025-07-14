@@ -69,10 +69,13 @@ function fetchIncomeDeals(token, companyId, startDate, endDate, offset = 0, limi
   const json = JSON.parse(response.getContentText());
   Logger.log(`【APIレスポンス】取引件数: ${json.deals ? json.deals.length : 0}`);
   
-  // レスポンスの詳細をログ出力
+  // 完全なJSONをログ出力
   if (json.deals && json.deals.length > 0) {
+    // サンプルとして最初の取引の詳細情報をログ出力
     const firstDeal = json.deals[0];
     Logger.log(`【取引サンプル】最初の取引: id=${firstDeal.id}, issue_date=${firstDeal.issue_date}`);
+    Logger.log(`【JSON】最初の取引詳細:\n${JSON.stringify(firstDeal, null, 2)}`);
+    
     if (firstDeal.details && firstDeal.details.length > 0) {
       const firstDetail = firstDeal.details[0];
       Logger.log(`【詳細サンプル】最初の取引の最初の詳細: account_item_id=${firstDetail.account_item_id}, entry_side=${firstDetail.entry_side}, section_id=${firstDetail.section_id || 'なし'}`);
@@ -105,10 +108,29 @@ function fetchItems(token, companyId) {
   }
   const json = JSON.parse(response.getContentText());
   Logger.log(`【APIレスポンス】品目件数: ${json.items ? json.items.length : 0}`);
+  
+  // 完全なJSONをログ出力
   if (json.items && json.items.length > 0) {
     const firstItem = json.items[0];
     Logger.log(`【品目サンプル】最初の品目: id=${firstItem.id}, name=${firstItem.name}`);
+    Logger.log(`【JSON】最初の品目詳細:\n${JSON.stringify(firstItem, null, 2)}`);
+    
+    // 特定のキーワードを含む品目を検索してログ出力
+    const matchingItems = json.items.filter(item => 
+      item.name && item.name.includes(CASH_ITEM_KEYWORD));
+    if (matchingItems.length > 0) {
+      Logger.log(`【検索結果】"${CASH_ITEM_KEYWORD}"を含む品目が${matchingItems.length}件見つかりました`);
+      matchingItems.forEach(item => {
+        Logger.log(`【マッチング品目】id=${item.id}, name=${item.name}`);
+      });
+    } else {
+      Logger.log(`【検索結果】"${CASH_ITEM_KEYWORD}"を含む品目は見つかりませんでした`);
+    }
+    
+    // 全品目一覧をログ出力
+    Logger.log(`【JSON】全品目一覧:\n${JSON.stringify(json.items, null, 2)}`);
   }
+  
   return json.items || [];
 }
 
@@ -261,6 +283,7 @@ function extractSalesByItem(deals, salesAccountItemId, sectionId, targetItemKeyw
   const salesByDate = {}; // 日付ごとの売上を集計するためのオブジェクト
   let totalDetails = 0;
   let matchingDetails = 0;
+  let detailsWithItemInfo = [];  // 品目情報を含む詳細を保存
   
   deals.forEach(deal => {
     if (!deal.details) {
@@ -300,15 +323,40 @@ function extractSalesByItem(deals, salesAccountItemId, sectionId, targetItemKeyw
         sectionMatches = dealSectionMatches;
       }
       
-      // 品目名をチェック
+      // 品目名をチェックして詳細情報を保存
       let itemMatches = false;
+      let itemName = '';
+      
       if (detail.item_id && detail.item) {
-        const itemName = detail.item.name || '';
+        itemName = detail.item.name || '';
         itemMatches = itemName.includes(targetItemKeyword);
+        
+        // 品目情報を含む詳細を保存
+        if (detail.item) {
+          detailsWithItemInfo.push({
+            deal_id: deal.id,
+            detail_id: detail.id,
+            account_item_id: detail.account_item_id,
+            entry_side: detail.entry_side,
+            item: detail.item
+          });
+        }
+        
         Logger.log(`【品目チェック】取引ID=${deal.id} 品目名=${itemName} マッチ=${itemMatches}`);
       } else if (detail.item_name) { // 一部のAPIレスポンスではitem_nameで直接返る場合も
-        itemMatches = detail.item_name.includes(targetItemKeyword);
-        Logger.log(`【品目チェック】取引ID=${deal.id} 品目名=${detail.item_name} マッチ=${itemMatches}`);
+        itemName = detail.item_name;
+        itemMatches = itemName.includes(targetItemKeyword);
+        
+        // 品目名情報を含む詳細を保存
+        detailsWithItemInfo.push({
+          deal_id: deal.id,
+          detail_id: detail.id,
+          account_item_id: detail.account_item_id,
+          entry_side: detail.entry_side,
+          item_name: detail.item_name
+        });
+        
+        Logger.log(`【品目チェック】取引ID=${deal.id} 品目名=${itemName} マッチ=${itemMatches}`);
       }
       
       // デバッグ情報
@@ -340,6 +388,13 @@ function extractSalesByItem(deals, salesAccountItemId, sectionId, targetItemKeyw
     });
   });
   
+  // 品目情報をJSON形式でログ出力
+  if (detailsWithItemInfo.length > 0) {
+    Logger.log(`【JSON】品目情報を含む明細 (${detailsWithItemInfo.length}件):\n${JSON.stringify(detailsWithItemInfo, null, 2)}`);
+  } else {
+    Logger.log('【警告】品目情報を含む明細は見つかりませんでした');
+  }
+  
   // 日付ごとの集計結果を配列に変換
   const sales = Object.values(salesByDate);
   
@@ -356,6 +411,9 @@ function extractSalesByItem(deals, salesAccountItemId, sectionId, targetItemKeyw
       Logger.log(`【参考】最初の取引: id=${sampleDeal.id}, section_id=${sampleDeal.section_id || 'なし'}`);
       Logger.log(`【参考】品目情報: ${sampleDetail.item ? JSON.stringify(sampleDetail.item) : '品目情報なし'}`);
       Logger.log(`【参考】item_name: ${sampleDetail.item_name || '未設定'}`);
+      
+      // サンプル取引の詳細情報をJSON形式で出力
+      Logger.log(`【JSON】サンプル取引の完全な情報:\n${JSON.stringify(sampleDeal, null, 2)}`);
     }
   }
   return sales;
@@ -406,7 +464,7 @@ function main() {
     const sections = fetchSections(token, companyId);
     const sectionId = getSectionIdByName(sections, TARGET_SECTION_NAME);
     
-    // 品目一覧取得（デバッグ情報用）
+    // 品目一覧取得
     try {
       const items = fetchItems(token, companyId);
       Logger.log(`【品目一覧取得成功】${items.length}件の品目があります`);
