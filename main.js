@@ -5,8 +5,7 @@
 // --- 設定値 ---
 const TARGET_SECTION_NAME = 'すなば文衛門'; // 対象部門名
 const DATE_FORMAT = 'yyyy-MM-dd'; // 日付フォーマット
-const DAYS_AGO = 0; // 0:今日, 1:昨日, ...
-// const SALES_ACCOUNT_ITEM_ID = 499030063; // 売上高のaccount_item_idを直接指定
+const DAYS_AGO = 0;
 
 // --- 日付取得ユーティリティ ---
 function getTargetDate(daysAgo = 0) {
@@ -224,7 +223,6 @@ function extractSalesBySection(deals, salesAccountItemId, sectionId, cashAccount
       Logger.log(`【参考】最初の取引の最初の詳細: account_item_id=${sampleDetail.account_item_id}, entry_side=${sampleDetail.entry_side}, section_id=${sampleDetail.section_id || 'なし'}`);
     }
   }
-  
   return sales;
 }
 
