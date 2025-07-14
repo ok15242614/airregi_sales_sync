@@ -140,8 +140,8 @@ function extractSalesBySection(deals, salesAccountItemId, sectionId) {
       const detailAccountItemId = Number(detail.account_item_id);
       const isAccountItemMatch = detailAccountItemId === salesAccountItemIdNum;
       
-      // 借方（収入）かチェック
-      const isDebit = detail.entry_side === 'debit';
+      // 貸方（収入）かチェック - freeeでは売上が貸方(credit)に記録されている
+      const isCredit = detail.entry_side === 'credit';
       
       // 部門IDをチェック（詳細レベル、または取引レベル）
       let sectionMatches = false;
@@ -164,10 +164,10 @@ function extractSalesBySection(deals, salesAccountItemId, sectionId) {
       }
       
       // デバッグ情報
-      Logger.log(`【詳細】取引ID=${deal.id} account_item_id=${detail.account_item_id}(${isAccountItemMatch}), entry_side=${detail.entry_side}(${isDebit}), section=${sectionMatches}`);
+      Logger.log(`【詳細】取引ID=${deal.id} account_item_id=${detail.account_item_id}(${isAccountItemMatch}), entry_side=${detail.entry_side}(${isCredit}), section=${sectionMatches}`);
       
       // 条件に一致する場合
-      if (isAccountItemMatch && isDebit && sectionMatches) {
+      if (isAccountItemMatch && isCredit && sectionMatches) {
         Logger.log(`【一致】取引ID=${deal.id}の詳細がマッチしました`);
         sales.push({
           deal_id: deal.id,
