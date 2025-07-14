@@ -98,6 +98,14 @@ function getSalesAccountItemId(accountItems) {
   return item.id;
 }
 
+// --- ユーティリティ: 現金の勘定科目ID取得 ---
+function getCashAccountItemId(accountItems) {
+  const item = accountItems.find(i => i.name === '現金');
+  if (!item) throw new Error('現金の勘定科目が見つかりません');
+  Logger.log(`【現金ID特定】現金 account_item_id=${item.id}`);
+  return item.id;
+}
+
 // --- ユーティリティ: 指定部門ID取得 ---
 function getSectionIdByName(sections, sectionName) {
   const section = sections.find(sec => sec.name && sec.name.trim().includes(sectionName.trim()));
@@ -106,16 +114,17 @@ function getSectionIdByName(sections, sectionName) {
   return section.id;
 }
 
-// --- データ抽出: 特定部門・売上高のみ ---
-function extractSalesBySection(deals, salesAccountItemId, sectionId) {
-  Logger.log(`【データ抽出】売上高ID=${salesAccountItemId} 部門ID=${sectionId}`);
-  Logger.log(`【データ抽出】売上高ID型=${typeof salesAccountItemId} 部門ID型=${typeof sectionId}`);
+// --- データ抽出: 特定部門・売上高のみ（借方が現金のみ） ---
+function extractSalesBySection(deals, salesAccountItemId, sectionId, cashAccountItemId) {
+  Logger.log(`【データ抽出】売上高ID=${salesAccountItemId} 部門ID=${sectionId} 現金ID=${cashAccountItemId}`);
+  Logger.log(`【データ抽出】売上高ID型=${typeof salesAccountItemId} 部門ID型=${typeof sectionId} 現金ID型=${typeof cashAccountItemId}`);
   
   // 型変換を確実に行う
   const salesAccountItemIdNum = Number(salesAccountItemId);
   const sectionIdNum = Number(sectionId);
+  const cashAccountItemIdNum = Number(cashAccountItemId);
   
-  const sales = [];
+  const salesByDate = {}; // 日付ごとの売上を集計するためのオブジェクト
   let totalDetails = 0;
   
   deals.forEach(deal => {
@@ -133,6 +142,15 @@ function extractSalesBySection(deals, salesAccountItemId, sectionId) {
     
     if (hasDealSection) {
       Logger.log(`【取引部門】取引ID=${deal.id} 部門ID=${dealSectionId} マッチ=${dealSectionMatches}`);
+    }
+    
+    // この取引に現金の詳細があるか確認
+    const hasCashDetail = deal.details.some(d => 
+      Number(d.account_item_id) === cashAccountItemIdNum && d.entry_side === 'debit');
+    
+    if (!hasCashDetail) {
+      Logger.log(`【現金なし】取引ID=${deal.id}に現金の借方がありません`);
+      return; // 現金の借方がない取引はスキップ
     }
     
     deal.details.forEach(detail => {
@@ -169,16 +187,28 @@ function extractSalesBySection(deals, salesAccountItemId, sectionId) {
       // 条件に一致する場合
       if (isAccountItemMatch && isCredit && sectionMatches) {
         Logger.log(`【一致】取引ID=${deal.id}の詳細がマッチしました`);
-        sales.push({
-          deal_id: deal.id,
-          date: deal.issue_date,
-          amount: detail.amount,
-          partner_name: deal.partner_name || '',
-          description: deal.description || ''
-        });
+        
+        // 日付ごとに金額を集計
+        const date = deal.issue_date;
+        if (!salesByDate[date]) {
+          salesByDate[date] = {
+            date: date,
+            amount: 0,
+            partner_name: '日計',
+            description: `${date}の売上集計`,
+            deals: [] // 集計対象の取引IDを記録
+          };
+        }
+        
+        salesByDate[date].amount += detail.amount;
+        salesByDate[date].deals.push(deal.id);
+        Logger.log(`【集計】日付=${date} 金額=${detail.amount} 累計=${salesByDate[date].amount}`);
       }
     });
   });
+  
+  // 日付ごとの集計結果を配列に変換
+  const sales = Object.values(salesByDate);
   
   Logger.log(`【処理詳細】総取引数=${deals.length}, 総明細数=${totalDetails}`);
   Logger.log(`【抽出結果】売上明細件数: ${sales.length}`);
@@ -200,13 +230,13 @@ function extractSalesBySection(deals, salesAccountItemId, sectionId) {
 
 // --- データ整形 ---
 function formatSalesData(sales) {
-  const headers = ['取引ID', '日付', '金額', '取引先名', 'メモ'];
+  const headers = ['日付', '金額', '取引先名', 'メモ', '対象取引ID'];
   const rows = sales.map(sale => [
-    sale.deal_id,
     sale.date,
     sale.amount,
     sale.partner_name,
-    sale.description
+    sale.description,
+    sale.deals ? sale.deals.join(', ') : ''
   ]);
   Logger.log(`【データ整形】行数: ${rows.length + 1}`);
   return [headers, ...rows];
@@ -240,13 +270,14 @@ function main() {
     // マスタ取得
     const accountItems = fetchAccountItems(token, companyId); // 勘定科目一覧を取得
     const salesAccountItemId = getSalesAccountItemId(accountItems); // 売上高のIDを取得
+    const cashAccountItemId = getCashAccountItemId(accountItems); // 現金のIDを取得
     const sections = fetchSections(token, companyId);
     const sectionId = getSectionIdByName(sections, TARGET_SECTION_NAME);
     // 取引取得
     const deals = fetchIncomeDeals(token, companyId, startDate, endDate);
     Logger.log(`【取引総数】${deals.length}件の取引を取得しました`);
     // データ抽出・整形・出力
-    const sales = extractSalesBySection(deals, salesAccountItemId, sectionId);
+    const sales = extractSalesBySection(deals, salesAccountItemId, sectionId, cashAccountItemId);
     const formatted = formatSalesData(sales);
     writeToSpreadsheet(formatted);
     Logger.log('main処理が完了しました');
