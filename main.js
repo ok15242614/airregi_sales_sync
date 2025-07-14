@@ -6,6 +6,7 @@
 const TARGET_SECTION_NAME = 'すなば文衛門'; // 対象部門名
 const DATE_FORMAT = 'yyyy-MM-dd'; // 日付フォーマット
 const DAYS_AGO = 0;
+const CASH_ITEM_KEYWORD = '001現金'; // 現金売上の品目に含まれるキーワード
 
 // --- 日付取得ユーティリティ ---
 function getTargetDate(daysAgo = 0) {
@@ -87,6 +88,28 @@ function fetchIncomeDeals(token, companyId, startDate, endDate, offset = 0, limi
   }
   
   return deals;
+}
+
+// --- freee API: 品目一覧取得 ---
+function fetchItems(token, companyId) {
+  Logger.log(`【APIリクエスト】品目一覧 company_id=${companyId}`);
+  const url = `https://api.freee.co.jp/api/1/items?company_id=${companyId}`;
+  const options = {
+    method: 'get',
+    headers: { Authorization: 'Bearer ' + token },
+    muteHttpExceptions: true
+  };
+  const response = UrlFetchApp.fetch(url, options);
+  if (response.getResponseCode() !== 200) {
+    throw new Error('品目一覧取得失敗: ' + response.getContentText());
+  }
+  const json = JSON.parse(response.getContentText());
+  Logger.log(`【APIレスポンス】品目件数: ${json.items ? json.items.length : 0}`);
+  if (json.items && json.items.length > 0) {
+    const firstItem = json.items[0];
+    Logger.log(`【品目サンプル】最初の品目: id=${firstItem.id}, name=${firstItem.name}`);
+  }
+  return json.items || [];
 }
 
 // --- ユーティリティ: 売上高の勘定科目ID取得 ---
@@ -226,6 +249,118 @@ function extractSalesBySection(deals, salesAccountItemId, sectionId, cashAccount
   return sales;
 }
 
+// --- データ抽出: 特定部門・売上高のみ（指定品目のもの） ---
+function extractSalesByItem(deals, salesAccountItemId, sectionId, targetItemKeyword) {
+  Logger.log(`【データ抽出】売上高ID=${salesAccountItemId} 部門ID=${sectionId} 品目キーワード="${targetItemKeyword}"`);
+  Logger.log(`【データ抽出】売上高ID型=${typeof salesAccountItemId} 部門ID型=${typeof sectionId}`);
+  
+  // 型変換を確実に行う
+  const salesAccountItemIdNum = Number(salesAccountItemId);
+  const sectionIdNum = Number(sectionId);
+  
+  const salesByDate = {}; // 日付ごとの売上を集計するためのオブジェクト
+  let totalDetails = 0;
+  let matchingDetails = 0;
+  
+  deals.forEach(deal => {
+    if (!deal.details) {
+      Logger.log(`【警告】取引ID=${deal.id}の詳細がありません`);
+      return;
+    }
+    
+    totalDetails += deal.details.length;
+    
+    // 取引に部門IDが設定されているか確認
+    const hasDealSection = deal.section_id !== undefined && deal.section_id !== null;
+    const dealSectionId = hasDealSection ? Number(deal.section_id) : null;
+    const dealSectionMatches = hasDealSection && dealSectionId === sectionIdNum;
+    
+    if (hasDealSection) {
+      Logger.log(`【取引部門】取引ID=${deal.id} 部門ID=${dealSectionId} マッチ=${dealSectionMatches}`);
+    }
+    
+    deal.details.forEach(detail => {
+      // 売上高の勘定科目IDかチェック
+      const detailAccountItemId = Number(detail.account_item_id);
+      const isAccountItemMatch = detailAccountItemId === salesAccountItemIdNum;
+      
+      // 貸方（収入）かチェック - freeeでは売上が貸方(credit)に記録されている
+      const isCredit = detail.entry_side === 'credit';
+      
+      // 部門IDをチェック（詳細レベル、または取引レベル）
+      let sectionMatches = false;
+      
+      // 詳細に部門IDがある場合はそれを優先
+      if (detail.section_id !== undefined && detail.section_id !== null) {
+        const detailSectionId = Number(detail.section_id);
+        sectionMatches = detailSectionId === sectionIdNum;
+      } 
+      // 詳細に部門IDがなく、取引に部門IDがある場合
+      else if (hasDealSection) {
+        sectionMatches = dealSectionMatches;
+      }
+      
+      // 品目名をチェック
+      let itemMatches = false;
+      if (detail.item_id && detail.item) {
+        const itemName = detail.item.name || '';
+        itemMatches = itemName.includes(targetItemKeyword);
+        Logger.log(`【品目チェック】取引ID=${deal.id} 品目名=${itemName} マッチ=${itemMatches}`);
+      } else if (detail.item_name) { // 一部のAPIレスポンスではitem_nameで直接返る場合も
+        itemMatches = detail.item_name.includes(targetItemKeyword);
+        Logger.log(`【品目チェック】取引ID=${deal.id} 品目名=${detail.item_name} マッチ=${itemMatches}`);
+      }
+      
+      // デバッグ情報
+      Logger.log(`【詳細】取引ID=${deal.id} account_item_id=${detail.account_item_id}(${isAccountItemMatch}), entry_side=${detail.entry_side}(${isCredit}), section=${sectionMatches}, item=${itemMatches}`);
+      
+      // 条件に一致する場合
+      if (isAccountItemMatch && isCredit && sectionMatches && itemMatches) {
+        Logger.log(`【一致】取引ID=${deal.id}の詳細がマッチしました`);
+        matchingDetails++;
+        
+        // 日付ごとに金額を集計
+        const date = deal.issue_date;
+        if (!salesByDate[date]) {
+          salesByDate[date] = {
+            date: date,
+            amount: 0,
+            partner_name: `${date}の${targetItemKeyword}売上`,
+            description: `品目「${targetItemKeyword}」を含む売上`,
+            deals: [] // 集計対象の取引IDを記録
+          };
+        }
+        
+        salesByDate[date].amount += detail.amount;
+        if (!salesByDate[date].deals.includes(deal.id)) {
+          salesByDate[date].deals.push(deal.id);
+        }
+        Logger.log(`【集計】日付=${date} 金額=${detail.amount} 累計=${salesByDate[date].amount}`);
+      }
+    });
+  });
+  
+  // 日付ごとの集計結果を配列に変換
+  const sales = Object.values(salesByDate);
+  
+  Logger.log(`【処理詳細】総取引数=${deals.length}, 総明細数=${totalDetails}, 一致明細=${matchingDetails}`);
+  Logger.log(`【抽出結果】売上明細件数: ${sales.length}`);
+  
+  if (sales.length > 0) {
+    Logger.log(`【抽出サンプル】1件目: ${JSON.stringify(sales[0])}`);
+  } else {
+    // 抽出結果が0件の場合、参考情報を出力
+    if (deals.length > 0 && deals[0].details && deals[0].details.length > 0) {
+      const sampleDeal = deals[0];
+      const sampleDetail = sampleDeal.details[0];
+      Logger.log(`【参考】最初の取引: id=${sampleDeal.id}, section_id=${sampleDeal.section_id || 'なし'}`);
+      Logger.log(`【参考】品目情報: ${sampleDetail.item ? JSON.stringify(sampleDetail.item) : '品目情報なし'}`);
+      Logger.log(`【参考】item_name: ${sampleDetail.item_name || '未設定'}`);
+    }
+  }
+  return sales;
+}
+
 // --- データ整形 ---
 function formatSalesData(sales) {
   const headers = ['日付', '金額', '取引先名', 'メモ', '対象取引ID'];
@@ -268,14 +403,23 @@ function main() {
     // マスタ取得
     const accountItems = fetchAccountItems(token, companyId); // 勘定科目一覧を取得
     const salesAccountItemId = getSalesAccountItemId(accountItems); // 売上高のIDを取得
-    const cashAccountItemId = getCashAccountItemId(accountItems); // 現金のIDを取得
     const sections = fetchSections(token, companyId);
     const sectionId = getSectionIdByName(sections, TARGET_SECTION_NAME);
+    
+    // 品目一覧取得（デバッグ情報用）
+    try {
+      const items = fetchItems(token, companyId);
+      Logger.log(`【品目一覧取得成功】${items.length}件の品目があります`);
+    } catch (e) {
+      Logger.log(`【品目一覧取得エラー】${e.message}`);
+    }
+    
     // 取引取得
     const deals = fetchIncomeDeals(token, companyId, startDate, endDate);
     Logger.log(`【取引総数】${deals.length}件の取引を取得しました`);
-    // データ抽出・整形・出力
-    const sales = extractSalesBySection(deals, salesAccountItemId, sectionId, cashAccountItemId);
+    
+    // データ抽出・整形・出力（品目で絞り込み）
+    const sales = extractSalesByItem(deals, salesAccountItemId, sectionId, CASH_ITEM_KEYWORD);
     const formatted = formatSalesData(sales);
     writeToSpreadsheet(formatted);
     Logger.log('main処理が完了しました');
