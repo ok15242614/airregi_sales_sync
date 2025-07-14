@@ -6,7 +6,7 @@
 const TARGET_SECTION_NAME = 'すなば文衛門'; // 対象部門名
 const DATE_FORMAT = 'yyyy-MM-dd'; // 日付フォーマット
 const DAYS_AGO = 0;
-const CASH_ITEM_KEYWORD = '001現金'; // 現金売上の品目に含まれるキーワード
+const CASH_ITEM_KEYWORD = '【Airレジ】001現金'; // 現金売上の品目に含まれるキーワード
 
 // --- 日付取得ユーティリティ ---
 function getTargetDate(daysAgo = 0) {
