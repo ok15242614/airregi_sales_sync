@@ -6,7 +6,7 @@
 const TARGET_SECTION_NAME = 'すなば文衛門'; // 対象部門名
 const DATE_FORMAT = 'yyyy-MM-dd'; // 日付フォーマット
 const DAYS_AGO = 0; // 0:今日, 1:昨日, ...
-const SALES_ACCOUNT_ITEM_ID = 499030063; // 売上高のaccount_item_idを直接指定
+// const SALES_ACCOUNT_ITEM_ID = 499030063; // 売上高のaccount_item_idを直接指定
 
 // --- 日付取得ユーティリティ ---
 function getTargetDate(daysAgo = 0) {
@@ -155,13 +155,14 @@ function main() {
     const endDate = getTargetDate(0);
     Logger.log(`【日付範囲】${startDate} ～ ${endDate}`);
     // マスタ取得
-    // const accountItems = fetchAccountItems(token, companyId); // 使わない
+    const accountItems = fetchAccountItems(token, companyId); // 勘定科目一覧を取得
+    const salesAccountItemId = getSalesAccountItemId(accountItems); // 売上高のIDを取得
     const sections = fetchSections(token, companyId);
     const sectionId = getSectionIdByName(sections, TARGET_SECTION_NAME);
     // 取引取得
     const deals = fetchIncomeDeals(token, companyId, startDate, endDate);
     // データ抽出・整形・出力
-    const sales = extractSalesBySection(deals, SALES_ACCOUNT_ITEM_ID, sectionId);
+    const sales = extractSalesBySection(deals, salesAccountItemId, sectionId);
     const formatted = formatSalesData(sales);
     writeToSpreadsheet(formatted);
     Logger.log('main処理が完了しました');
